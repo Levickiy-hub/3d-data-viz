@@ -1,10 +1,13 @@
 import * as THREE from 'three';
-import OrbitControlsLib from './controls/OrbitControls'; // локальный импорт OrbitControls
+import { ControlsManager } from './controls/OrbitControls';
 import { addDefaultLights } from './lights/DefaultLights';
-import { generateCrystals, centerCameraOnCrystals } from './utils/crystalUtils';
+import { centerCameraOnCrystals } from './utils/crystalUtils';
 import { FPSCounter } from './utils/fpsUtils';
-import { createBackground, animateBackground } from './background';
-import { createFloorGrid } from './Grid'; // или где ты положишь
+import { createFloorGrid } from './Grid';
+import { CrystalManager } from './objects/CrystalManager';
+import { CameraManager } from './CameraManager';
+import { BackgroundManager } from './background/BackgroundManager';
+import { RendererManager } from './renderer/RendererManager';
 
 export class SceneManager {
   constructor(canvas, data) {
@@ -12,19 +15,13 @@ export class SceneManager {
 
     // Инициализация сцены и рендерера
     this.scene = new THREE.Scene();
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-    this.renderer.shadowMap.enabled = false;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Камера
-    this.camera = new THREE.PerspectiveCamera(
-      60,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
+    this.rendererManager = new RendererManager(canvas);
+    this.renderer = this.rendererManager.getRenderer();
 
+    // Инициализация CameraManager
+    this.cameraManager = new CameraManager(window.innerWidth, window.innerHeight);
+    this.camera = this.cameraManager.getCamera();
     // Таймер для анимации
     this.clock = new THREE.Clock();
 
@@ -40,24 +37,22 @@ export class SceneManager {
     window.addEventListener('resize', this.resize);
 
     // Контролы камеры
-    this.controls = new OrbitControlsLib(this.camera, this.renderer.domElement);
-    this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.05;
+    this.controlsManager = new ControlsManager(this.camera, this.renderer.domElement);
 
     // Освещение сцены
     addDefaultLights(this.scene);
 
     this.floorGrid = createFloorGrid();
     this.scene.add(this.floorGrid);
-    
-    // Кристаллы — массив мешей
-    this.crystals = generateCrystals(data);
-    this.crystals.forEach(crystal => this.scene.add(crystal));
+
+    // Используем CrystalManager
+    this.crystalManager = new CrystalManager(data);
+    this.crystalManager.addToScene(this.scene);
 
     // Центрируем камеру на кристаллах
-    centerCameraOnCrystals(this.camera, this.controls, this.crystals);
+    centerCameraOnCrystals(this.camera, this.controlsManager.getControls(), this.crystalManager.crystals);
 
-    this.bgData = createBackground(this.scene, this.renderer);
+    this.backgroundManager = new BackgroundManager(this.scene, this.renderer);
 
     // Запуск анимации
     this.animationFrameId = requestAnimationFrame(this.animate);
@@ -67,9 +62,8 @@ export class SceneManager {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    this.renderer.setSize(width, height);
-    this.camera.aspect = width / height;
-    this.camera.updateProjectionMatrix();
+    this.rendererManager.resize();
+    this.cameraManager.resize(width, height);
   }
 
   animate() {
@@ -77,14 +71,12 @@ export class SceneManager {
 
     const delta = this.clock.getDelta();
 
-    // Плавное вращение каждого кристалла вокруг своей оси Y
-    this.crystals.forEach(crystal => {
-      crystal.rotation.y += delta * 0.1;
-    });
+    // Плавное вращение кристаллов через CrystalManager
+    this.crystalManager.animate(delta);
 
-    animateBackground(this.bgData);
+    this.backgroundManager.animate();
 
-    this.controls.update();
+    this.controlsManager.update();
     this.renderer.render(this.scene, this.camera);
 
     this.fpsCounter.update();
@@ -105,7 +97,8 @@ export class SceneManager {
       }
     });
 
-    this.controls.dispose();
-    this.renderer.dispose();
+    this.controlsManager.dispose();
+    this.rendererManager.dispose();
+    this.backgroundManager.dispose();
   }
 }
