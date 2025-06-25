@@ -1,0 +1,48 @@
+.tabelWrapper {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    padding: 12px;
+    border-radius: 8px;
+    color: white;
+    font-family: sans-serif;
+    max-height: 400px;
+    overflow: auto;
+    display: flex;
+}
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+    color: white;
+}
+
+th,
+td {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    text-align: left;
+}
+
+th {
+    background-color: rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+}
+
+.activeRow {
+  background-color: rgba(0, 255, 0, 0.2);
+}
+
+.toggleButton {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1001;
+}

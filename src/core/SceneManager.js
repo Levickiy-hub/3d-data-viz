@@ -10,9 +10,15 @@ import { BackgroundManager } from './background/BackgroundManager';
 import { RendererManager } from './renderer/RendererManager';
 
 export class SceneManager {
-  constructor(canvas, data) {
+  constructor(canvas, data, target, setTarget) {
     this.canvas = canvas;
+    //Обработчик нажатия
+    this.setTarget = setTarget;
+    this.target = target;
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
 
+    this.canvas.addEventListener('pointerdown', this.onClick.bind(this));
     // Инициализация сцены и рендерера
     this.scene = new THREE.Scene();
 
@@ -72,7 +78,7 @@ export class SceneManager {
     const delta = this.clock.getDelta();
 
     // Плавное вращение кристаллов через CrystalManager
-    this.crystalManager.animate(delta);
+    this.crystalManager.animate(delta, this.target?.id);
 
     this.backgroundManager.animate();
 
@@ -80,6 +86,24 @@ export class SceneManager {
     this.renderer.render(this.scene, this.camera);
 
     this.fpsCounter.update();
+  }
+
+  onClick(event) {
+    const rect = this.canvas.getBoundingClientRect();
+
+    this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+
+    const intersects = this.raycaster.intersectObjects(this.crystalManager.getCrystalMeshes());
+
+    if (intersects.length > 0) {
+      const mesh = intersects[0].object;
+      const crystalData = mesh.userData;
+
+      this.setTarget(crystalData); // Установить выбранный объект
+    }
   }
 
   dispose() {
@@ -100,5 +124,9 @@ export class SceneManager {
     this.controlsManager.dispose();
     this.rendererManager.dispose();
     this.backgroundManager.dispose();
+  }
+
+  updateTarget(target) {
+    this.target = target;
   }
 }

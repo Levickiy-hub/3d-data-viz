@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export function createCrystal(baseColor, position, size) {
+export function createCrystal(baseColor, position, size, metadata = {}) {
   const group = new THREE.Group();
 
   // Оболочка — октаэдр (кристалл)
@@ -28,6 +28,8 @@ export function createCrystal(baseColor, position, size) {
   const shell = new THREE.Mesh(crystalGeometry.clone(), shellMaterial);
   shell.scale.set(size.x, size.y, size.z);
 
+  shell.userData = metadata;
+
   // Ядро — сфера внутри
   const glowColor = new THREE.Color(baseColor).multiplyScalar(1.2);
   const coreMaterial = new THREE.MeshStandardMaterial({
@@ -48,6 +50,6 @@ export function createCrystal(baseColor, position, size) {
   group.add(shell);
   group.add(core);
   group.position.set(position.x, position.y, position.z);
-
+  group.userData.id = metadata.id;
   return group;
 }

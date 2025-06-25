@@ -30,7 +30,13 @@ export function generateCrystals(serverData) {
     };
 
     const color = serverData.colors[i];
-    const crystal = createCrystal(color, position, size);
+    const metaData = {
+      id: serverData.ids[i],
+      name: serverData.names?.[i] || `Crystal ${i}`,
+      type: serverData.types?.[i] || 'crystal'
+    };
+
+    const crystal = createCrystal(color, position, size, metaData);
     crystals.push(crystal);
   }
 
