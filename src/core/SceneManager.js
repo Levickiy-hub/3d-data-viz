@@ -1,69 +1,111 @@
-import * as THREE from 'three'
-import OrbitControlsLib from './controls/OrbitControls'
-import { addDefaultLights } from './lights/DefaultLights'
-import { createCube } from './objects/Cube'
+import * as THREE from 'three';
+import OrbitControlsLib from './controls/OrbitControls'; // локальный импорт OrbitControls
+import { addDefaultLights } from './lights/DefaultLights';
+import { generateCrystals, centerCameraOnCrystals } from './utils/crystalUtils';
+import { FPSCounter } from './utils/fpsUtils';
+import { createBackground, animateBackground } from './background';
+import { createFloorGrid } from './Grid'; // или где ты положишь
 
 export class SceneManager {
-  constructor(canvas) {
-    this.canvas = canvas
-    this.scene = new THREE.Scene()
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
+  constructor(canvas, data) {
+    this.canvas = canvas;
+
+    // Инициализация сцены и рендерера
+    this.scene = new THREE.Scene();
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+    this.renderer.shadowMap.enabled = false;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Камера
     this.camera = new THREE.PerspectiveCamera(
       60,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
-    )
-    this.camera.position.set(0, 0, 10)
+    );
 
-    this.clock = new THREE.Clock()
-    this.animationFrameId = null
+    // Таймер для анимации
+    this.clock = new THREE.Clock();
 
-    this.resize = this.resize.bind(this)
+    // Счётчик FPS
+    this.fpsCounter = new FPSCounter();
 
-    this.resize()
-    window.addEventListener('resize', this.resize)
-    this.animate()
+    // Привязка методов к this
+    this.resize = this.resize.bind(this);
+    this.animate = this.animate.bind(this);
 
-    this.controls = new OrbitControlsLib(this.camera, this.renderer.domElement)
-    addDefaultLights(this.scene)
-    this.scene.add(createCube())
+    // Размер канваса и камера
+    this.resize();
+    window.addEventListener('resize', this.resize);
 
-    this.animate = this.animate.bind(this)
-    requestAnimationFrame(this.animate)
+    // Контролы камеры
+    this.controls = new OrbitControlsLib(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.05;
+
+    // Освещение сцены
+    addDefaultLights(this.scene);
+
+    this.floorGrid = createFloorGrid();
+    this.scene.add(this.floorGrid);
+    
+    // Кристаллы — массив мешей
+    this.crystals = generateCrystals(data);
+    this.crystals.forEach(crystal => this.scene.add(crystal));
+
+    // Центрируем камеру на кристаллах
+    centerCameraOnCrystals(this.camera, this.controls, this.crystals);
+
+    this.bgData = createBackground(this.scene, this.renderer);
+
+    // Запуск анимации
+    this.animationFrameId = requestAnimationFrame(this.animate);
   }
 
   resize() {
-    this.renderer.setSize(window.innerWidth, window.innerHeight)
-    this.camera.aspect = window.innerWidth / window.innerHeight
-    this.camera.updateProjectionMatrix()
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    this.renderer.setSize(width, height);
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
   }
 
   animate() {
-    this.animationFrameId = requestAnimationFrame(this.animate)
+    this.animationFrameId = requestAnimationFrame(this.animate);
 
-    const delta = this.clock.getDelta()
+    const delta = this.clock.getDelta();
 
-    // future updates, e.g. this.update(delta)
-    this.renderer.render(this.scene, this.camera)
+    // Плавное вращение каждого кристалла вокруг своей оси Y
+    this.crystals.forEach(crystal => {
+      crystal.rotation.y += delta * 0.1;
+    });
+
+    animateBackground(this.bgData);
+
+    this.controls.update();
+    this.renderer.render(this.scene, this.camera);
+
+    this.fpsCounter.update();
   }
 
   dispose() {
-    cancelAnimationFrame(this.animationFrameId)
+    cancelAnimationFrame(this.animationFrameId);
+    window.removeEventListener('resize', this.resize);
 
-    window.removeEventListener('resize', this.resize)
-
-    this.scene.traverse((object) => {
-      if (object.geometry) object.geometry.dispose?.()
-      if (object.material) {
-        if (Array.isArray(object.material)) {
-          object.material.forEach((m) => m.dispose?.())
+    this.scene.traverse(obj => {
+      if (obj.isMesh) {
+        obj.geometry.dispose();
+        if (Array.isArray(obj.material)) {
+          obj.material.forEach(m => m.dispose());
         } else {
-          object.material.dispose?.()
+          obj.material.dispose();
         }
       }
-    })
+    });
 
-    this.renderer.dispose()
+    this.controls.dispose();
+    this.renderer.dispose();
   }
 }
