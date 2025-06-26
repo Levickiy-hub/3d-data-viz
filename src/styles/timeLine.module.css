@@ -1,0 +1,22 @@
+.timelineWrapper {
+    width: 300px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .slider {
+    width: 100%;
+    cursor: pointer;
+  }
+  
+  .timestamp {
+    margin-top: 6px;
+    color: #fff;
+    font-size: 14px;
+  }
+  

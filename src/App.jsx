@@ -2,10 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { SceneManager } from './core/SceneManager';
 import { generateData } from './data/generateData';
 import Tabel from './components/Tabel';
+import ToggleButton from './components/ToggleButton';
+import TimeLine from './components/TimeLine';
+import style from './styles/App.module.css';
 
 const App = () => {
   const [data, setData] = useState(null);
   const [target, setTarget] = useState(null);
+  const [is3d, setIs3d] = useState(true);
 
   const canvasRef = useRef(null);
   const managerRef = useRef(null);
@@ -13,7 +17,7 @@ const App = () => {
   useEffect(() => {
     if (canvasRef.current) {
       const data = generateData(3);
-      setData(data)
+      setData(data);
       const manager = new SceneManager(canvasRef.current, data, target, setTarget)
       managerRef.current = manager;
 
@@ -33,7 +37,13 @@ const App = () => {
   return (
     <>
       <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
-      <Tabel data={data} target={target} setTarget={setTarget} />
+      <div className="ui">
+        <Tabel data={data} target={target} setTarget={setTarget} />
+        <div className={style.bottomControlsWrapper}>
+          <ToggleButton is3d={is3d} setIs3d={setIs3d} />
+          <TimeLine data={data} setData={setData} />
+        </div>
+      </div>
     </>
   )
 }

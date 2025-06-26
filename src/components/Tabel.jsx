@@ -15,7 +15,7 @@ const Tabel = ({ data, target, setTarget }) => {
     }
 
     const onClickHandler = (row) => {
-        setTarget(row)
+        setTarget(prev => prev && prev.id === row.id ? null : row)
     }
 
     return (

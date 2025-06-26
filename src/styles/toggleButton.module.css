@@ -1,0 +1,31 @@
+.toggleWrapper {
+    display: flex;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(6px);
+    width: fit-content;
+}
+
+.toggleBtn {
+    padding: 10px 18px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.toggleBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.03);
+}
+
+.active {
+    background: rgba(0, 200, 255, 0.3);
+    font-weight: bold;
+}

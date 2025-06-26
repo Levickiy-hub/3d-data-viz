@@ -8,6 +8,7 @@ import { CrystalManager } from './objects/CrystalManager';
 import { CameraManager } from './CameraManager';
 import { BackgroundManager } from './background/BackgroundManager';
 import { RendererManager } from './renderer/RendererManager';
+import { ConnectionManager } from './objects/ConnectionManager';
 
 export class SceneManager {
   constructor(canvas, data, target, setTarget) {
@@ -62,6 +63,10 @@ export class SceneManager {
 
     // Запуск анимации
     this.animationFrameId = requestAnimationFrame(this.animate);
+    
+    //запуск отрисовки связей
+    this.connectionManager = new ConnectionManager(this.scene, this.crystalManager.crystals);
+    this.connectionManager.createConnections(data);
   }
 
   resize() {
@@ -102,7 +107,7 @@ export class SceneManager {
       const mesh = intersects[0].object;
       const crystalData = mesh.userData;
 
-      this.setTarget(crystalData); // Установить выбранный объект
+      this.setTarget(crystalData);
     }
   }
 
