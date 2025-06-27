@@ -1,5 +1,4 @@
 export function prepare3DData(rawData) {
-    console.log(rawData)
     return rawData.map((item) => ({
       id: item.id,
       position: {

@@ -4,7 +4,6 @@ import { prepare2DData } from '../data/transformers/prepare2DData.js';
 
 self.onmessage = function (event) {
   const { type, payload } = event.data;
-  console.log('payload',payload)
   if (type === 'process:all') {
     const table = prepareTableData(payload);
     const view3D = prepare3DData(payload);

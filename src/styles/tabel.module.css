@@ -7,7 +7,7 @@
     backdrop-filter: blur(8px);
     padding: 12px;
     border-radius: 8px;
-    color: white;
+    /* color: white; */
     font-family: sans-serif;
     max-height: 400px;
     overflow: auto;
@@ -17,7 +17,7 @@
 .table {
     border-collapse: collapse;
     width: 100%;
-    color: white;
+    /* color: white; */
 }
 
 th,
@@ -38,7 +38,7 @@ th {
 
 .toggleButton {
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  /* color: white; */
   border: none;
   padding: 5px 8px;
   cursor: pointer;

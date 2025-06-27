@@ -1,6 +1,7 @@
 class WorkerManager {
     constructor() {
         this.workers = new Map();
+        this.callbacks = new Map();
 
         this.initWorker('dataProcessor', '../data/dataProcessor.js');
     }
@@ -13,7 +14,12 @@ class WorkerManager {
 
             // Отправка обработанных данных в dispatcher
             // dispatcher.emit({ type, payload });
-            console.log(type, payload)
+            const callback = this.callbacks.get(type);
+            if (callback) {
+                callback(payload);
+            } else {
+                console.warn(`[WorkerManager] No callback for message type: ${type}`);
+            }
         };
 
         this.workers.set(name, worker);
@@ -42,6 +48,15 @@ class WorkerManager {
             type: 'process:all',
             payload: rawData,
         });
+    }
+
+    /**
+     * Зарегистрировать callback на сообщение от воркера
+     * @param {string} type - тип сообщения (например: 'processed:all')
+     * @param {function} callback - функция, вызываемая при получении
+     */
+    on(type, callback) {
+        this.callbacks.set(type, callback);
     }
 }
 

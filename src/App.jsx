@@ -18,11 +18,13 @@ const App = () => {
   useEffect(() => {
     if (canvasRef.current) {
       const dataMock = generateData(new Date(), 1, 3);
-      if (dataMock) {
-        workerManager.processIncoming(dataMock);
-      }
-      // console.log(JSON.stringify(dataMock, null, 2));
-      setData(dataMock);
+
+      workerManager.on('processed:all', (processedData) => {
+        setData(processedData);
+      });
+
+      workerManager.processIncoming(dataMock);
+
       // const manager = new SceneManager(canvasRef.current, dataMock, target, setTarget)
       // managerRef.current = manager;
 
@@ -39,11 +41,17 @@ const App = () => {
     }
   }, [target]);
 
+  useEffect(() => {
+    if (data) {
+      console.log(data)
+    }
+  }, [data]);
+
   return (
     <>
       <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
       <div className="ui">
-        {/* <Tabel data={data} target={target} setTarget={setTarget} /> */}
+        <Tabel data={data?.table} target={target} setTarget={setTarget} />
         <div className={style.bottomControlsWrapper}>
           <ToggleButton is3d={is3d} setIs3d={setIs3d} />
           <TimeLine data={data} setData={setData} />
