@@ -128,6 +128,6 @@ export function generateData(startTime = new Date(), count = 10, serverCount = 3
       metrics.push(metric);
     }
   }
-  console.log(metrics)
+
   return metrics;
 }
