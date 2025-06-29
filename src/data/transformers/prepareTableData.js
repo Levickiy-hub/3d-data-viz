@@ -1,4 +1,4 @@
-import { DataDTO } from "../DataDTO";
+import { DataDTO } from "../dto/DataDTO";
 
 export function prepareTableData(rawData) {
   return rawData.map((item) => {

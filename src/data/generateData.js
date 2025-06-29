@@ -1,4 +1,4 @@
-import { DataDTO } from './DataDTO';
+import { DataDTO } from './dto/DataDTO';
 
 export function generateData(startTime = new Date(), count = 10, serverCount = 3) {
   const metrics = [];
