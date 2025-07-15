@@ -2,38 +2,44 @@ import * as THREE from 'three';
 import { createCrystal } from '../objects/Crystal.js';
 
 export function generateCrystals(serverData) {
+  if (!serverData) {
+    return [];
+  }
   const crystals = [];
 
-  const total = serverData.ids.length;
+  console.log(serverData)
+  const total = serverData.length;
   const center = new THREE.Vector3(0, 0, 0);
 
   // 1. Сначала вычислим "средний центр"
   for (let i = 0; i < total; i++) {
-    center.x += serverData.positions.x[i];
-    center.y += serverData.positions.y[i];
-    center.z += serverData.positions.z[i];
+    center.x += serverData[i].position.x;
+    center.y += serverData[i].position.y;
+    center.z += serverData[i].position.z;
   }
   center.divideScalar(total);
 
   // 2. Создадим кристаллы со смещением к центру
   for (let i = 0; i < total; i++) {
     const position = {
-      x: serverData.positions.x[i] - center.x,
-      y: serverData.positions.y[i] - center.y,
-      z: serverData.positions.z[i] - center.z + (Math.random() * 20 - 4)
+      x: serverData[i].position.x - center.x,
+      y: serverData[i].position.y - center.y,
+      z: serverData[i].position.z - center.z + (Math.random() * 20 - 4)
     };
 
     const size = {
-      x: serverData.sizes.x[i],
-      y: serverData.sizes.y[i],
-      z: serverData.sizes.z[i]
+      x: serverData[i].size.width,
+      y: serverData[i].size.height,
+      z: serverData[i].size.depth
     };
 
-    const color = serverData.colors[i];
+    const color = serverData[i].color;
     const metaData = {
-      id: serverData.ids[i],
-      name: serverData.names?.[i] || `Crystal ${i}`,
-      type: serverData.types?.[i] || 'crystal'
+      id: serverData[i].id,
+      name: serverData[i].name || `Crystal ${i}`,
+      type: serverData[i].type || 'crystal',
+      metrics:serverData[i].metrics,
+      animations: serverData[i].animations
     };
 
     const crystal = createCrystal(color, position, size, metaData);

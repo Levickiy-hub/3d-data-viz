@@ -25,13 +25,13 @@ const App = () => {
 
       workerManager.processIncoming(dataMock);
 
-      // const manager = new SceneManager(canvasRef.current, dataMock, target, setTarget)
-      // managerRef.current = manager;
+      const manager = new SceneManager(canvasRef.current, target, setTarget)
+      managerRef.current = manager;
 
-      // return () => {
-      //   manager.dispose?.()
-      //   managerRef.current = null;
-      // }
+      return () => {
+        manager.dispose?.()
+        managerRef.current = null;
+      }
     }
   }, []);
 
@@ -44,6 +44,8 @@ const App = () => {
   useEffect(() => {
     if (data) {
       console.log(data)
+      managerRef.current.updateData(data.view3D);
+
     }
   }, [data]);
 

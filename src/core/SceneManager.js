@@ -11,7 +11,7 @@ import { RendererManager } from './renderer/RendererManager';
 import { ConnectionManager } from './objects/ConnectionManager';
 
 export class SceneManager {
-  constructor(canvas, data, target, setTarget) {
+  constructor(canvas, target, setTarget) {
     this.canvas = canvas;
     //Обработчик нажатия
     this.setTarget = setTarget;
@@ -53,20 +53,20 @@ export class SceneManager {
     this.scene.add(this.floorGrid);
 
     // Используем CrystalManager
-    this.crystalManager = new CrystalManager(data);
-    this.crystalManager.addToScene(this.scene);
+    this.crystalManager = new CrystalManager();
+    // this.crystalManager.addToScene(this.scene);
 
     // Центрируем камеру на кристаллах
-    centerCameraOnCrystals(this.camera, this.controlsManager.getControls(), this.crystalManager.crystals);
+    // centerCameraOnCrystals(this.camera, this.controlsManager.getControls(), this.crystalManager.crystals);
 
     this.backgroundManager = new BackgroundManager(this.scene, this.renderer);
 
     // Запуск анимации
     this.animationFrameId = requestAnimationFrame(this.animate);
-    
-    //запуск отрисовки связей
-    this.connectionManager = new ConnectionManager(this.scene, this.crystalManager.crystals);
-    this.connectionManager.createConnections(data);
+
+    // //запуск отрисовки связей
+    // this.connectionManager = new ConnectionManager(this.scene, this.crystalManager.crystals);
+    // this.connectionManager.createConnections(data);
   }
 
   resize() {
@@ -94,6 +94,8 @@ export class SceneManager {
   }
 
   onClick(event) {
+    if (!this.crystalManager) return;
+
     const rect = this.canvas.getBoundingClientRect();
 
     this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -133,5 +135,14 @@ export class SceneManager {
 
   updateTarget(target) {
     this.target = target;
+  }
+
+  updateData(data) {
+    // Инициализируем кристаллы с новыми данными
+    this.crystalManager = new CrystalManager(data);
+    this.crystalManager.addToScene(this.scene);
+
+    // Центрируем камеру на кристаллах
+    centerCameraOnCrystals(this.camera, this.controlsManager.getControls(), this.crystalManager.crystals);
   }
 }

@@ -12,7 +12,7 @@ export class CrystalManager {
 
     animate(delta, targetId = null) {
         this.crystals.forEach(crystalGroup => {
-            crystalGroup.rotation.y += delta * 0.1;
+            crystalGroup.rotation.y += delta * crystalGroup.metadata.animations.rotationSpeed;
 
             const isSelected = targetId && crystalGroup.userData.id === targetId;
 
